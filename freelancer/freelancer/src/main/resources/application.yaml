@@ -1,0 +1,104 @@
+spring:
+  application:
+    name: freelancer
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/freelancer}
+    username: ${DB_USERNAME:${USER:postgres}}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+    show-sql: false
+    open-in-view: false
+
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
+        size-parameter: limit
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 1000ms
+      lettuce:
+        pool:
+          enabled: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    encoding: UTF-8
+
+management:
+  health:
+    redis:
+      enabled: false
+
+server:
+  port: ${SERVER_PORT:8082}
+  servlet:
+    context-path: /api/v1
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration-ms: ${JWT_ACCESS_EXPIRE_MS:1800000}     # 30 minutes
+  refresh-token-expiration-ms: ${JWT_REFRESH_EXPIRE_MS:604800000}  # 7 days
+  qr-token-expiration-seconds: ${JWT_QR_EXPIRE_S:300}              # 300 seconds = 5 phút (demo mode)
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+
+logging:
+  level:
+    com.freelancer: DEBUG
+    org.springframework.security: DEBUG
+    org.flywaydb: INFO
+cloudinary:
+  cloud_name: ${CLOUDINARY_CLOUD_NAME}
+  api_key: ${CLOUDINARY_API_KEY}
+  api_secret: ${CLOUDINARY_API_SECRET}
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+
+payment:
+  vnpay:
+    tmn-code: ${VNPAY_TMN_CODE}
+    hash-secret: ${VNPAY_HASH_SECRET}
+    base-url: ${VNPAY_BASE_URL}
+
+    return-url: ${VNPAY_RETURN_URL}
+    refund-url: ${VNPAY_REFUND_URL:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}
+    mobile-redirect-url: ${VNPAY_MOBILE_REDIRECT_URL:gymapp://payment/result}
+    api-url: ${VNPAY_API_URL:https://sandbox.vnpayment.vn/merchant_webapi/api/transaction}
+ 
+
+# Firebase Admin SDK
+# Đặt file firebase-service-account.json vào src/main/resources/
+# hoặc cung cấp absolute path qua biến môi trường FIREBASE_SERVICE_ACCOUNT_PATH
+firebase:
+  service-account-path: ${FIREBASE_SERVICE_ACCOUNT_PATH:firebase-service-account.json}
