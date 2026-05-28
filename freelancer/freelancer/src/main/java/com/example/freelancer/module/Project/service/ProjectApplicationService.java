@@ -84,7 +84,7 @@ public class ProjectApplicationService implements IProjectApplicationService {
                 application.setFreelancer(freelancer);
                 application.setStatus(ApprovalStatus.PENDING);
                 application.setAppliedAt(OffsetDateTime.now());
-
+                application.setCoverLetter(request.getCoverLetter());
                 ProjectApplication saved = projectApplicationRepository.save(application);
                 notificationService.createNotification(
                                 freelancer.getUser(),
@@ -98,6 +98,7 @@ public class ProjectApplicationService implements IProjectApplicationService {
                                 .freelancerId(freelancer.getId())
                                 .status(application.getStatus())
                                 .appliedAt(application.getAppliedAt())
+                                .coverLetter(application.getCoverLetter())
                                 .build();
         }
 
@@ -181,7 +182,7 @@ public class ProjectApplicationService implements IProjectApplicationService {
 
                                 .freelancerId(app.getFreelancer().getId())
                                 .freelancerName(app.getFreelancer().getUser().getFullName())
-
+                                .coverLetter(app.getCoverLetter())
                                 .experience(app.getFreelancer().getExperience())
                                 .programmingLanguages(app.getFreelancer().getProgrammingLanguages())
                                 .portfolioLink(app.getFreelancer().getPortfolioLink())
@@ -360,7 +361,8 @@ public class ProjectApplicationService implements IProjectApplicationService {
                 projectMemberRepository.delete(projectMember);
 
                 if (wasProjectLeader) {
-                        List<ProjectMember> remainingProjectMembers = projectMemberRepository.findByProjectId(projectId);
+                        List<ProjectMember> remainingProjectMembers = projectMemberRepository
+                                        .findByProjectId(projectId);
 
                         if (!remainingProjectMembers.isEmpty()) {
                                 ProjectMember newProjectLeader = remainingProjectMembers.get(0);
@@ -394,11 +396,14 @@ public class ProjectApplicationService implements IProjectApplicationService {
                 } else if (isFreelancer) {
                         // Nếu là Freelancer, phải là thành viên trong dự án
                         Freelancer freelancer = freelancerRepository.findByUserId(currentUser.getId())
-                                        .orElseThrow(() -> new ResourceNotFoundException("404", "Freelancer not found"));
-                                        
-                        boolean isMember = projectMemberRepository.existsByProjectIdAndFreelancerId(projectId, freelancer.getId());
+                                        .orElseThrow(() -> new ResourceNotFoundException("404",
+                                                        "Freelancer not found"));
+
+                        boolean isMember = projectMemberRepository.existsByProjectIdAndFreelancerId(projectId,
+                                        freelancer.getId());
                         if (!isMember) {
-                                throw new BadRequestException("403", "Bạn không có quyền xem thành viên dự án này vì không thuộc dự án");
+                                throw new BadRequestException("403",
+                                                "Bạn không có quyền xem thành viên dự án này vì không thuộc dự án");
                         }
                 } else {
                         throw new BadRequestException("403", "Bạn không có quyền truy cập");

@@ -37,7 +37,7 @@ services:
       - .env
 
     environment:
-      DB_URL: jdbc:postgresql://postgres:5432/freelancer
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/freelancer
 
     volumes:
       - ./firebase-service-account.json:/app/firebase-service-account.json

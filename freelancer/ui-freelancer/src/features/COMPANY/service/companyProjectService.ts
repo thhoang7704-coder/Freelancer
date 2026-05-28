@@ -63,6 +63,7 @@ export interface CompanyProjectApplication {
   programmingLanguages: string | null;
   portfolioLink: string | null;
   projectLinks: string | null;
+  coverLetter: string | null;
   status: ApplicationStatus;
   appliedAt: string;
 }

@@ -27,6 +27,7 @@ import {
   SearchOutlined,
   TeamOutlined,
   UserOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -72,7 +73,12 @@ export const CompanyApprovedFreelancersPage: React.FC = () => {
   const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
-
+const [coverLetterModal, setCoverLetterModal] = useState(false);
+const [selectedCoverLetter, setSelectedCoverLetter] = useState<{
+  freelancerName?: string;
+  projectName?: string;
+  coverLetter?: string | null;
+} | null>(null);
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
@@ -199,7 +205,17 @@ export const CompanyApprovedFreelancersPage: React.FC = () => {
       },
     });
   };
+  const openCoverLetter = (
+  application: CompanyProjectApplicationWithProject
+) => {
+  setSelectedCoverLetter({
+    freelancerName: application.freelancerName,
+    projectName: application.projectName,
+    coverLetter: application.coverLetter,
+  });
 
+  setCoverLetterModal(true);
+};
   const applicationColumns: ColumnsType<CompanyProjectApplicationWithProject> = [
     {
       title: "Freelancer",
@@ -316,6 +332,13 @@ export const CompanyApprovedFreelancersPage: React.FC = () => {
       render: (_, record) =>
         record.status === "PENDING" ? (
           <Space>
+            {/* Xem cover letter */}
+    <Tooltip title="Xem thư giới thiệu">
+      <Button
+        icon={<EyeOutlined />}
+        onClick={() => openCoverLetter(record)}
+      />
+    </Tooltip>
             <Tooltip title="Duyệt">
               <Button
                 type="primary"
@@ -551,7 +574,50 @@ export const CompanyApprovedFreelancersPage: React.FC = () => {
       <Text type="secondary" style={{ display: "block", marginTop: 12 }}>
         Tổng dự án: {projects.length}
       </Text>
+      <Modal
+      open={coverLetterModal}
+      title="Thư giới thiệu"
+      footer={null}
+      onCancel={() => setCoverLetterModal(false)}
+      width={700}
+    >
+      <Space direction="vertical" style={{ width: "100%" }} size="middle">
+        <div>
+          <Text strong>Freelancer:</Text>{" "}
+          <Text>{selectedCoverLetter?.freelancerName}</Text>
+        </div>
+
+        <div>
+          <Text strong>Dự án:</Text>{" "}
+          <Text>{selectedCoverLetter?.projectName}</Text>
+        </div>
+
+        <div>
+          <Text strong>Cover Letter:</Text>
+
+          <Card
+            size="small"
+            style={{
+              marginTop: 8,
+              background: "#fafafa",
+              borderRadius: 8,
+            }}
+          >
+            <Paragraph
+              style={{
+                whiteSpace: "pre-wrap",
+                marginBottom: 0,
+              }}
+            >
+              {selectedCoverLetter?.coverLetter ||
+                "Freelancer chưa cung cấp thư giới thiệu"}
+            </Paragraph>
+          </Card>
+        </div>
+      </Space>
+    </Modal>
     </div>
+    
   );
 };
 

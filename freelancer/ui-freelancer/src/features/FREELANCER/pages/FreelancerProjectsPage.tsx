@@ -102,7 +102,7 @@ export const FreelancerProjectsPage: React.FC = () => {
     e?.stopPropagation();
     setApplyTarget(project);
     form.resetFields();
-    form.setFieldsValue({ proposedRate: project.budget });
+    form.resetFields();
     setApplyModal(true);
   };
 
@@ -114,7 +114,6 @@ export const FreelancerProjectsPage: React.FC = () => {
       await freelancerProjectService.applyProject({
         projectId: applyTarget.projectId,
         coverLetter: values.coverLetter,
-        proposedRate: values.proposedRate,
       });
       message.success("Ứng tuyển thành công! Hãy chờ công ty xem xét.");
       setAppliedIds((prev) => new Set([...prev, applyTarget.projectId]));
@@ -429,23 +428,7 @@ export const FreelancerProjectsPage: React.FC = () => {
         )}
 
         <Form form={form} layout="vertical" onFinish={handleApplySubmit}>
-          <Form.Item
-            label="Mức giá đề xuất (VND)"
-            name="proposedRate"
-            rules={[
-              { required: true, message: "Vui lòng nhập mức giá đề xuất" },
-              { type: "number", min: 0, message: "Giá trị phải dương" },
-            ]}
-          >
-            <InputNumber<number>
-              style={{ width: "100%" }}
-              formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-              parser={(v) => Number(v?.replace(/,/g, "") ?? 0)}
-              min={0}
-              size="large"
-              placeholder="Nhập mức giá bạn đề xuất"
-            />
-          </Form.Item>
+          
 
           <Form.Item
             label="Thư giới thiệu (Cover Letter)"

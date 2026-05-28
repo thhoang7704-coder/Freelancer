@@ -24,52 +24,53 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WalletHistoryService implements IWalletHistoryService {
 
-    private final WalletRepository walletRepository;
-    private final TransactionRepository transactionRepository;
-    private final WithdrawRepository withdrawRepository;
+        private final WalletRepository walletRepository;
+        private final TransactionRepository transactionRepository;
+        private final WithdrawRepository withdrawRepository;
 
-    @Override
-    public List<MyIncomeTransactionResponse> getMyIncomeHistory() {
+        @Override
+        public List<MyIncomeTransactionResponse> getMyIncomeHistory() {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+                UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        Wallet wallet = walletRepository.findByUserId(userDetails.getId())
-                .orElseThrow(() -> new RuntimeException("Wallet not found"));
+                Wallet wallet = walletRepository.findByUserId(userDetails.getId())
+                                .orElseThrow(() -> new RuntimeException("Wallet not found"));
 
-        List<Transaction> transactions = transactionRepository.findByWalletIdOrderByCreatedAtDesc(wallet.getId());
+                List<Transaction> transactions = transactionRepository
+                                .findByWalletIdOrderByCreatedAtDesc(wallet.getId());
 
-        return transactions.stream()
-                .map(transaction -> MyIncomeTransactionResponse.builder()
-                        .transactionId(transaction.getId())
-                        .amount(transaction.getAmount())
-                        .type(transaction.getType())
-                        .status(transaction.getStatus())
-                        .description(transaction.getDescription())
-                        .createdAt(transaction.getCreatedAt())
-                        .build())
-                .toList();
-    }
+                return transactions.stream()
+                                .map(transaction -> MyIncomeTransactionResponse.builder()
+                                                .transactionId(transaction.getId())
+                                                .amount(transaction.getAmount())
+                                                .type(transaction.getType())
+                                                .status(transaction.getStatus())
+                                                .description(transaction.getDescription())
+                                                .createdAt(transaction.getCreatedAt())
+                                                .build())
+                                .toList();
+        }
 
-    @Override
-    public List<WithdrawHistoryResponse> getMyWithdrawHistory() {
+        @Override
+        public List<WithdrawHistoryResponse> getMyWithdrawHistory() {
 
-        UserDetailsImpl currentUser = SecurityUtils.getCurrentUser();
+                UserDetailsImpl currentUser = SecurityUtils.getCurrentUser();
 
-        List<WithdrawRequest> withdraws = withdrawRepository
-                .findByUserIdOrderByCreatedAtDesc(currentUser.getId());
+                List<WithdrawRequest> withdraws = withdrawRepository
+                                .findByUserIdOrderByCreatedAtDesc(currentUser.getId());
 
-        return withdraws.stream()
-                .map(withdraw -> WithdrawHistoryResponse.builder()
-                        .withdrawId(withdraw.getId())
-                        .amount(withdraw.getAmount())
-                        .bankAccount(withdraw.getBankAccount())
-                        .bankName(withdraw.getBankName())
-                        .accountName(withdraw.getAccountName())
-                        .status(withdraw.getStatus())
-                        .createdAt(withdraw.getCreatedAt())
-                        .build())
-                .toList();
-    }
+                return withdraws.stream()
+                                .map(withdraw -> WithdrawHistoryResponse.builder()
+                                                .id(withdraw.getId())
+                                                .amount(withdraw.getAmount())
+                                                .bankAccount(withdraw.getBankAccount())
+                                                .bankName(withdraw.getBankName())
+                                                .accountName(withdraw.getAccountName())
+                                                .status(withdraw.getStatus())
+                                                .createdAt(withdraw.getCreatedAt())
+                                                .build())
+                                .toList();
+        }
 }

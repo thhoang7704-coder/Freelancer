@@ -41,4 +41,6 @@ public class ProjectApplication {
     private ApprovalStatus status;
     @Column(name = "applied_at")
     private OffsetDateTime appliedAt;
+    @Column(name = "coverLetter")
+    private String coverLetter;
 }

@@ -11,7 +11,7 @@ import lombok.Getter;
 @Builder
 public class WalletResponse {
 
-    private UUID walletId;
+    private UUID id;
     private UUID userId;
     private BigDecimal balance;
     private OffsetDateTime updatedAt;

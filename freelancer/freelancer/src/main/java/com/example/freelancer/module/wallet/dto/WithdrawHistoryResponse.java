@@ -13,7 +13,7 @@ import lombok.Getter;
 @Builder
 public class WithdrawHistoryResponse {
 
-    private UUID withdrawId;
+    private UUID id;
 
     private BigDecimal amount;
 

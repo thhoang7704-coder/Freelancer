@@ -11,7 +11,7 @@ import lombok.Getter;
 @Builder
 public class WithdrawResponse {
 
-    private UUID withdrawId;
+    private UUID id;
     private BigDecimal amount;
     private WithdrawStatus status;
     private OffsetDateTime createdAt;

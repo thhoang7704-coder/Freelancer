@@ -81,14 +81,14 @@ const withdrawColumns: ColumnsType<WithdrawHistoryResponse> = [
       <div>
         <Text strong>{r.bankName}</Text>
         <br />
-        <Text type="secondary" style={{ fontSize: 12 }}>{r.accountNumber}</Text>
+        <Text type="secondary" style={{ fontSize: 12 }}>{r.bankAccount}</Text>
       </div>
     ),
   },
   {
     title: "Chủ tài khoản",
-    dataIndex: "accountHolderName",
-    key: "accountHolderName",
+    dataIndex: "accountName",
+    key: "accountName",
   },
   {
     title: "Số tiền",
@@ -191,8 +191,8 @@ export const FreelancerEarningsPage: React.FC = () => {
 
   const totalIncome = incomeHistory.reduce((s, i) => s + (i.amount ?? 0), 0);
   const totalWithdrawn = withdrawHistory
-    .filter((w) => w.status === "COMPLETED")
-    .reduce((s, w) => s + (w.amount ?? 0), 0);
+  .filter((w) => ["COMPLETED", "SUCCESS", "APPROVED"].includes(w.status))
+  .reduce((s, w) => s + (w.amount ?? 0), 0);
   const pendingWithdraw = withdrawHistory
     .filter((w) => w.status === "PENDING")
     .reduce((s, w) => s + (w.amount ?? 0), 0);
@@ -368,14 +368,14 @@ export const FreelancerEarningsPage: React.FC = () => {
           </Form.Item>
           <Form.Item
             label="Số tài khoản"
-            name="accountNumber"
+            name="bankAccount"
             rules={[{ required: true, message: "Vui lòng nhập số tài khoản" }]}
           >
             <Input placeholder="Nhập số tài khoản ngân hàng" size="large" />
           </Form.Item>
           <Form.Item
             label={<Space><UserOutlined />Tên chủ tài khoản</Space>}
-            name="accountHolderName"
+            name="accountName"
             rules={[{ required: true, message: "Vui lòng nhập tên chủ tài khoản" }]}
           >
             <Input

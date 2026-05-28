@@ -51,7 +51,7 @@ public class WalletService implements IWalletService {
                                 });
 
                 return WalletResponse.builder()
-                                .walletId(wallet.getId())
+                                .id(wallet.getId())
                                 .userId(wallet.getUser().getId())
                                 .balance(wallet.getBalance())
                                 .updatedAt(wallet.getUpdatedAt())
@@ -101,7 +101,7 @@ public class WalletService implements IWalletService {
                 withdrawRepository.save(withdraw);
 
                 return WithdrawResponse.builder()
-                                .withdrawId(withdraw.getId())
+                                .id(withdraw.getId())
                                 .amount(withdraw.getAmount())
                                 .status(withdraw.getStatus())
                                 .createdAt(withdraw.getCreatedAt())

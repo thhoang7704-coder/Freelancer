@@ -25,8 +25,8 @@ export interface WithdrawHistoryResponse {
   id: string;
   amount: number;
   bankName: string;
-  accountNumber: string;
-  accountHolderName: string;
+  bankAccount: string;
+  accountName: string;
   status: "PENDING" | "COMPLETED" | "REJECTED";
   createdAt: string;
   note?: string;
@@ -35,8 +35,8 @@ export interface WithdrawHistoryResponse {
 export interface WithdrawRequest {
   amount: number;
   bankName: string;
-  accountNumber: string;
-  accountHolderName: string;
+ bankAccount: string;
+  accountName: string;
 }
 
 export const walletService = {

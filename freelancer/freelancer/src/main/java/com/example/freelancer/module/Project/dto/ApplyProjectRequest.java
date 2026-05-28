@@ -7,4 +7,5 @@ import lombok.Getter;
 @Getter
 public class ApplyProjectRequest {
     private UUID projectId;
+    private String coverLetter;
 }

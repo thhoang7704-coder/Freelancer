@@ -21,4 +21,5 @@ public class ProjectApplicationResponse {
     private ApprovalStatus status;
 
     private OffsetDateTime appliedAt;
+    private String coverLetter;
 }

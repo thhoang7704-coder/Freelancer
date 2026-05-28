@@ -55,7 +55,7 @@ export interface ProjectApplicationItemResponse {
     companyName: string;
   };
   coverLetter?: string;
-  proposedRate?: number;
+ 
   status: "PENDING" | "APPROVED" | "REJECTED";
   appliedAt: string;
   updatedAt?: string;
@@ -64,7 +64,6 @@ export interface ProjectApplicationItemResponse {
 export interface ApplyProjectRequest {
   projectId: string;
   coverLetter: string;
-  proposedRate: number;
 }
 
 // ─── Service ──────────────────────────────────────────────────────────────────
