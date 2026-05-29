@@ -21,7 +21,7 @@ public class CorsConfig {
                 "http://localhost:5173",
                 "http://localhost:4173",
                 "http://localhost:3000",
-                "https://*.vercel.app"));
+                "https://freelancer-ruby-nine.vercel.app"));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 
