@@ -20,11 +20,13 @@ public class CorsConfig {
                 "http://localhost:5500",
                 "http://localhost:5173",
                 "http://localhost:4173",
-                "http://localhost:3000"));
+                "http://localhost:3000",
+                "https://*.vercel.app"));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
 
         config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
