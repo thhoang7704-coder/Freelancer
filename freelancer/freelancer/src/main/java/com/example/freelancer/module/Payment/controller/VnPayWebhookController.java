@@ -2,6 +2,9 @@ package com.example.freelancer.module.Payment.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,11 +20,14 @@ public class VnPayWebhookController {
 
     private final VnPayWebhookService vnPayWebhookService;
 
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
     @GetMapping("/ipn")
     public ResponseEntity<String> handleIpn(
             @RequestParam Map<String, String> params) {
 
-        log.info("========== VNPAY IPN ==========");
+        log.info("VNPAY IPN");
         log.info("Params: {}", params);
 
         String response = vnPayWebhookService.processIpn(params);
@@ -30,19 +36,28 @@ public class VnPayWebhookController {
     }
 
     @GetMapping("/return")
-    public ResponseEntity<String> handleReturn(
+    public ResponseEntity<Void> handleReturn(
             @RequestParam Map<String, String> params) {
 
-        log.info("========== VNPAY RETURN ==========");
+        log.info("VNPAY RETURN");
         log.info("Params: {}", params);
-        
+
+        String status = "failed";
         try {
-            String dbUrl = vnPayWebhookService.getDatabaseUrl();
-            log.info("Connected to Database: {}", dbUrl);
-        } catch (Exception e) {}
+            vnPayWebhookService.processReturn(params);
+            String responseCode = params.get("vnp_ResponseCode");
+            if ("00".equals(responseCode)) {
+                status = "success";
+            }
+        } catch (Exception e) {
+            log.error("Error processing VNPAY return", e);
+        }
 
-        vnPayWebhookService.processReturn(params);
+        String redirectUrl = frontendUrl + "/company/payments?vnpay_status=" + status;
+        log.info("Redirecting to: {}", redirectUrl);
 
-        return ResponseEntity.ok("Thanh toán thành công");
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", redirectUrl);
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 }

@@ -100,5 +100,8 @@ payment:
 # Firebase Admin SDK
 # Đặt file firebase-service-account.json vào src/main/resources/
 # hoặc cung cấp absolute path qua biến môi trường FIREBASE_SERVICE_ACCOUNT_PATH
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+
 firebase:
   service-account-path: ${FIREBASE_SERVICE_ACCOUNT_PATH:firebase-service-account.json}
