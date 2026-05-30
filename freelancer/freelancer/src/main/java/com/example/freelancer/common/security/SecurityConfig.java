@@ -59,8 +59,7 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers("/webhook/**", "/payments/vnpay-return",
-                                "/api/v1/payments/momo-return")
+                        .requestMatchers("/webhook/**", "/payments/vnpay-return", "/health")
                         .permitAll()
 
                         // All other endpoints require authentication
