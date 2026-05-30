@@ -136,6 +136,10 @@ public class VnPayWebhookService implements IVnPayWebhookService {
             Project project = payment.getProject();
             project.setPaymentStatus(PaymentStatus.PAID);
             projectRepository.save(project);
+            paymentRepository.save(payment);
+
+            
+            distributionService.distributePayment(payment);
 
         } else {
 
@@ -144,9 +148,8 @@ public class VnPayWebhookService implements IVnPayWebhookService {
             Project project = payment.getProject();
             project.setPaymentStatus(PaymentStatus.UNPAID);
             projectRepository.save(project);
+            paymentRepository.save(payment);
         }
-
-        paymentRepository.save(payment);
     }
 
 }
