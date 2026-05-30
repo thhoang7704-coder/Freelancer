@@ -1,6 +1,8 @@
 package com.example.freelancer.module.company.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.security.core.Authentication;
@@ -15,6 +17,7 @@ import com.example.freelancer.common.security.SecurityUtils;
 import com.example.freelancer.common.security.UserDetailsImpl;
 import com.example.freelancer.enums.ApprovalStatus;
 import com.example.freelancer.enums.NotificationType;
+import com.example.freelancer.enums.PaymentStatus;
 import com.example.freelancer.enums.ProjectApplyStatus;
 import com.example.freelancer.enums.TaskStatus;
 import com.example.freelancer.enums.UserRole;
@@ -320,9 +323,19 @@ public class CompanyService implements ICompanyService {
         public List<CompanyProjectResponse> getCompanyProjects() {
 
                 UserDetailsImpl currentUser = SecurityUtils.getCurrentUser();
+                Company company = companyRepository.findByUserId(currentUser.getId())
+                                .orElseThrow(() -> new ResourceNotFoundException("404", "Company not found"));
 
                 List<Project> projects = projectRepository
                                 .findByCompanyUserId(currentUser.getId());
+                List<Payment> allPayments = paymentRepository
+                                .findByCompanyIdOrderByCreatedAtDesc(company.getId());
+                // Tạo Map: projectId từ đó lấy PaymentStatus (lấy payment mới nhất)
+                Map<UUID, PaymentStatus> paymentStatusMap = new HashMap<>();
+                for (Payment p : allPayments) {
+                        // putIfAbsent vì list đã sort desc → cái đầu tiên là mới nhất
+                        paymentStatusMap.putIfAbsent(p.getProject().getId(), p.getPaymentStatus());
+                }
 
                 return projects.stream()
                                 .map(project -> {
@@ -346,6 +359,8 @@ public class CompanyService implements ICompanyService {
                                                         .countByProjectIdAndStatus(
                                                                         project.getId(),
                                                                         ApprovalStatus.APPROVED);
+                                        PaymentStatus paymentStatus = paymentStatusMap
+                                                        .getOrDefault(project.getId(), PaymentStatus.UNPAID);
 
                                         return CompanyProjectResponse.builder()
                                                         .projectId(project.getId())
@@ -370,6 +385,7 @@ public class CompanyService implements ICompanyService {
                                                         .inProgressTasks(inProgress)
                                                         .todoTasks(todo)
                                                         .createdAt(project.getCreatedAt())
+                                                        .paymentStatus(paymentStatus)
                                                         .build();
                                 })
                                 .toList();

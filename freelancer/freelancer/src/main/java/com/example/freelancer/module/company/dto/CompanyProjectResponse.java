@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.example.freelancer.enums.ApprovalStatus;
+import com.example.freelancer.enums.PaymentStatus;
 import com.example.freelancer.enums.ProgressStatus;
 import com.example.freelancer.enums.ProjectApplyStatus;
 
@@ -45,4 +46,5 @@ public class CompanyProjectResponse {
 
     private ProjectApplyStatus applyStatus;
     private OffsetDateTime createdAt;
+    private PaymentStatus paymentStatus;
 }
