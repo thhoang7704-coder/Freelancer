@@ -76,7 +76,13 @@ public class VnPayWebhookService implements IVnPayWebhookService {
                 paymentRepository.save(payment);
 
                 // AUTO DISTRIBUTE
-                distributionService.distributePayment(payment);
+                try {
+                    distributionService.distributePayment(payment);
+                    log.info("========== IPN DISTRIBUTION SUCCESS ==========");
+                } catch (Throwable t) {
+                    log.error("========== FATAL ERROR IN IPN DISTRIBUTION ==========", t);
+                    throw t;
+                }
 
                 log.info("PAYMENT SUCCESS: {}", txnRef);
 
@@ -138,9 +144,13 @@ public class VnPayWebhookService implements IVnPayWebhookService {
             projectRepository.save(project);
             paymentRepository.save(payment);
 
- 
-            distributionService.distributePayment(payment);
-
+            try {
+                distributionService.distributePayment(payment);
+                log.info("========== DISTRIBUTION SUCCESS ==========");
+            } catch (Throwable t) {
+                log.error("========== FATAL ERROR IN DISTRIBUTION ==========", t);
+                throw t; // Rethrow so it still rolls back if needed
+            }
         } else {
 
             payment.setPaymentStatus(PaymentStatus.FAILED);

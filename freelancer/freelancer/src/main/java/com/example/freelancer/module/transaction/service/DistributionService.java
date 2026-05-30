@@ -110,17 +110,17 @@ public class DistributionService implements IDistributionService {
                         distributionRepository.save(distribution);
                 }
                 // NOTIFY ALL COMPANIES
-                List<Company> companies = companyRepository.findAll();
+                // List<Company> companies = companyRepository.findAll();
 
-                for (Company company : companies) {
+                // for (Company company : companies) {
 
-                        notificationService.createNotification(
-                                        company.getUser(),
-                                        "Admin đã cập nhật phân chia thanh toán",
-                                        "Admin vừa cập nhật quy tắc phân chia thanh toán cho hệ thống.",
-                                        NotificationType.PAYMENT_RULE_UPDATED,
-                                        payment.getId());
-                }
+                //         notificationService.createNotification(
+                //                         company.getUser(),
+                //                         "Admin đã cập nhật phân chia thanh toán",
+                //                         "Admin vừa cập nhật quy tắc phân chia thanh toán cho hệ thống.",
+                //                         NotificationType.PAYMENT_RULE_UPDATED,
+                //                         payment.getId());
+                // }
         }
 
         private UUID getAdminUserId() {
