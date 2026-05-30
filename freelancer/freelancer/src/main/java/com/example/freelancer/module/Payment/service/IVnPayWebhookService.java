@@ -4,6 +4,6 @@ import java.util.Map;
 
 public interface IVnPayWebhookService {
     String processIpn(Map<String, String> params);
-
     void processReturn(Map<String, String> params);
+    String getDatabaseUrl();
 }

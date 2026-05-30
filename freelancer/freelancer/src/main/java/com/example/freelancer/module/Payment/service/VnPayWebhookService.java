@@ -23,8 +23,13 @@ public class VnPayWebhookService implements IVnPayWebhookService {
     private final PaymentRepository paymentRepository;
     private final DistributionService distributionService;
     private final ProjectRepository projectRepository;
+    private final org.springframework.core.env.Environment env;
 
     private final VnPayUtil vnPayUtil;
+
+    public String getDatabaseUrl() {
+        return env.getProperty("spring.datasource.url");
+    }
 
     @Override
     @Transactional

@@ -121,7 +121,7 @@ public class DistributionService implements IDistributionService {
                 //                         NotificationType.PAYMENT_RULE_UPDATED,
                 //                         payment.getId());
                 // }
-        }
+        }       
 
         private UUID getAdminUserId() {
 

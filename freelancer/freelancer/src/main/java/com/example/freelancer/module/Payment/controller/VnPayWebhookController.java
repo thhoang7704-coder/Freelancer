@@ -35,6 +35,11 @@ public class VnPayWebhookController {
 
         log.info("========== VNPAY RETURN ==========");
         log.info("Params: {}", params);
+        
+        try {
+            String dbUrl = vnPayWebhookService.getDatabaseUrl();
+            log.info("Connected to Database: {}", dbUrl);
+        } catch (Exception e) {}
 
         vnPayWebhookService.processReturn(params);
 
