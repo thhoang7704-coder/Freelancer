@@ -121,29 +121,32 @@ public class VnPayWebhookService implements IVnPayWebhookService {
                 .findByTxnRef(txnRef)
                 .orElseThrow(() -> new RuntimeException("Payment not found"));
 
-        // String responseCode = params.get("vnp_ResponseCode");
+        String responseCode = params.get("vnp_ResponseCode");
+        if (payment.getPaymentStatus() == PaymentStatus.PAID) {
+            return;
+        }
 
-        // if ("00".equals(responseCode)) {
+        if ("00".equals(responseCode)) {
 
-        //     payment.setPaymentStatus(PaymentStatus.PAID);
+            payment.setPaymentStatus(PaymentStatus.PAID);
 
-        //     payment.setPaymentCode(
-        //             params.get("vnp_TransactionNo"));
+            payment.setPaymentCode(
+                    params.get("vnp_TransactionNo"));
 
-        //     Project project = payment.getProject();
-        //     project.setPaymentStatus(PaymentStatus.PAID);
-        //     projectRepository.save(project);
+            Project project = payment.getProject();
+            project.setPaymentStatus(PaymentStatus.PAID);
+            projectRepository.save(project);
 
-        // } else {
+        } else {
 
-        //     payment.setPaymentStatus(PaymentStatus.FAILED);
+            payment.setPaymentStatus(PaymentStatus.FAILED);
 
-        //     Project project = payment.getProject();
-        //     project.setPaymentStatus(PaymentStatus.UNPAID);
-        //     projectRepository.save(project);
-        // }
+            Project project = payment.getProject();
+            project.setPaymentStatus(PaymentStatus.UNPAID);
+            projectRepository.save(project);
+        }
 
-        // paymentRepository.save(payment);
+        paymentRepository.save(payment);
     }
 
 }
