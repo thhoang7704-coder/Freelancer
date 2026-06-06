@@ -47,4 +47,5 @@ public class CompanyProjectResponse {
     private ProjectApplyStatus applyStatus;
     private OffsetDateTime createdAt;
     private PaymentStatus paymentStatus;
+    private List<String> attachmentUrls;
 }

@@ -18,6 +18,7 @@ const { Text } = Typography;
 const allMenuItems = [
   { key: "/company/dashboard",    icon: <DashboardOutlined />, label: "Tổng quan"         },
   { key: "/company/projects",     icon: <ProjectOutlined />,   label: "Dự án của tôi"     },
+  { key: "/company/tasks",        icon: <FileTextOutlined />,  label: "Task & Báo cáo"    },
   { key: "/company/project-members", icon: <TeamOutlined />, label: "Thành viên dự án" },
   { key: "/company/freelancer-approvals", icon: <CheckCircleOutlined />, label: "Duyệt freelancer" },
   { key: "/company/freelancers",  icon: <TeamOutlined />,      label: "Team dự án"    },

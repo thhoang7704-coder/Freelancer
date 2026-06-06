@@ -12,6 +12,7 @@ export interface CompanyProject {
   skillsRequired: string | string[];
 
   files?: string[];
+  attachmentUrls?: string[];
 
   status: "PENDING" | "APPROVED" | "REJECTED";
   applyStatus: "OPEN" | "CLOSED";
@@ -329,3 +330,60 @@ async unlockProject(projectId: string) {
     return response.data;
   },
 };
+
+// ==================== COMPANY PROJECT TASKS ====================
+
+export interface CompanyTaskFeedback {
+  id: string;
+  authorName: string;
+  type: "LEADER_TO_FREELANCER" | "COMPANY_TO_LEADER";
+  content: string;
+  fileUrl?: string;
+  createdAt: string;
+}
+
+export interface CompanyTaskReport {
+  id: string;
+  reporterName: string;
+  content: string;
+  fileUrl?: string;
+  reportedAt: string;
+  feedbacks: CompanyTaskFeedback[];
+}
+
+export interface CompanyProjectTask {
+  taskId: string;
+  title: string;
+  description: string;
+  status: "TODO" | "IN_PROGRESS" | "DONE";
+  taskType: "OPEN" | "ASSIGNED";
+  fileUrl?: string;
+  assignedTo?: string;
+  assignedToName: string;
+  deadline?: string;
+  createdAt: string;
+  reports: CompanyTaskReport[];
+}
+
+export const companyTaskService = {
+  async getProjectTasks(projectId: string): Promise<CompanyProjectTask[]> {
+    const response = await api.get<ApiResponse<CompanyProjectTask[]>>(
+      `/companies/projects/${projectId}/tasks`
+    );
+    return response.data.data || [];
+  },
+
+  async submitCompanyFeedback(
+    reportId: string,
+    feedback: string,
+    file?: File
+  ): Promise<void> {
+    const formData = new FormData();
+    formData.append("feedback", feedback);
+    if (file) formData.append("file", file);
+    await api.post(`/companies/reports/${reportId}/company-feedbacks`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+};
+

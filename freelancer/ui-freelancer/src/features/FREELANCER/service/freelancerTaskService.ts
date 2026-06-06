@@ -36,6 +36,27 @@ export interface ProjectMember {
   joinedAt: string;
 }
 
+export interface WorkReportItem {
+  id: string;
+  taskId: string;
+  reporterName: string;
+  content: string;
+  fileUrl?: string;
+  reportedAt: string;
+}
+
+export interface ReportFeedbackItem {
+  id: string;
+  reportId: string;
+  type: "LEADER_TO_FREELANCER" | "COMPANY_TO_LEADER";
+  authorId: string;
+  authorName: string;
+  authorRole: string;
+  content: string;
+  fileUrl?: string;
+  createdAt: string;
+}
+
 export interface LeaderTaskOverviewItem {
   taskId: string;
   title: string;
@@ -161,5 +182,39 @@ export const freelancerTaskService = {
    */
   async updateProjectProgress(projectId: string, progressStatus: "TODO" | "IN_PROGRESS" | "DONE"): Promise<void> {
     await api.put(`/freelancers/leader/${projectId}/progress`, { progressStatus });
+  },
+
+  /**
+   * BÁO CÁO CÔNG VIỆC
+   */
+  async getReportsByTask(taskId: string): Promise<WorkReportItem[]> {
+    const res = await api.get<any>(`/tasks/${taskId}/reports`);
+    return res.data?.data || res.data || [];
+  },
+
+  async submitReport(taskId: string, formData: FormData): Promise<void> {
+    await api.post(`/tasks/${taskId}/reports`, formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+  },
+
+  async updateReport(reportId: string, formData: FormData): Promise<void> {
+    await api.put(`/freelancers/reports/${reportId}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+  },
+
+  /**
+   * FEEDBACK BÁO CÁO
+   */
+  async getReportFeedbacks(reportId: string): Promise<ReportFeedbackItem[]> {
+    const res = await api.get<any>(`/freelancers/reports/${reportId}/feedbacks`);
+    return res.data?.data || res.data || [];
+  },
+
+  async submitLeaderFeedback(reportId: string, formData: FormData): Promise<void> {
+    await api.post(`/freelancers/reports/${reportId}/leader-feedbacks`, formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
   }
 };

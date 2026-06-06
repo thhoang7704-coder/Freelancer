@@ -36,9 +36,13 @@ import {
   CheckSquareOutlined,
   InboxOutlined,
   InfoCircleOutlined,
-  UserAddOutlined
+  UserAddOutlined,
+  FileTextOutlined,
+  EditOutlined,
+  MessageOutlined,
+  FileDoneOutlined
 } from "@ant-design/icons";
-import { freelancerTaskService, type ProjectItem, type TaskItem, type ProjectMember } from "../service/freelancerTaskService";
+import { freelancerTaskService, type ProjectItem, type TaskItem, type ProjectMember, type WorkReportItem, type ReportFeedbackItem } from "../service/freelancerTaskService";
 import { useAuthStore } from "../../../stores/authStore";
 import dayjs from "dayjs";
 
@@ -63,6 +67,20 @@ export const FreelancerTasksPage: React.FC = () => {
   const [taskTypeVal, setTaskTypeVal] = useState<"OPEN" | "ASSIGNED">("OPEN");
   const [submitting, setSubmitting] = useState(false);
   const [fileList, setFileList] = useState<any[]>([]);
+
+  // Modals Báo cáo & Feedback
+  const [reportsModalVisible, setReportsModalVisible] = useState(false);
+  const [reportsList, setReportsList] = useState<WorkReportItem[]>([]);
+  const [selectedTaskForReport, setSelectedTaskForReport] = useState<TaskItem | null>(null);
+  
+  const [reportFormModalVisible, setReportFormModalVisible] = useState(false);
+  const [reportForm] = Form.useForm();
+  const [editingReport, setEditingReport] = useState<WorkReportItem | null>(null);
+  
+  const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
+  const [feedbacksList, setFeedbacksList] = useState<ReportFeedbackItem[]>([]);
+  const [selectedReportForFeedback, setSelectedReportForFeedback] = useState<WorkReportItem | null>(null);
+  const [feedbackForm] = Form.useForm();
 
   useEffect(() => {
     fetchData();
@@ -204,6 +222,92 @@ export const FreelancerTasksPage: React.FC = () => {
   // Tính toán số lượng task theo trạng thái cho tab "My Tasks"
   const getMyTasksCount = (status: string) => {
     return myTasks.filter((t) => t.status === status).length;
+  };
+
+  // ---------------- BÁO CÁO & FEEDBACK HANDLERS ----------------
+  const handleOpenReports = async (task: TaskItem) => {
+    setSelectedTaskForReport(task);
+    setReportsModalVisible(true);
+    try {
+      const data = await freelancerTaskService.getReportsByTask(task.taskId);
+      setReportsList(data);
+    } catch (error) {
+      message.error("Lỗi khi tải danh sách báo cáo!");
+    }
+  };
+
+  const handleOpenSubmitReport = (report?: WorkReportItem) => {
+    setEditingReport(report || null);
+    if (report) {
+      reportForm.setFieldsValue({ content: report.content });
+    } else {
+      reportForm.resetFields();
+    }
+    setFileList([]);
+    setReportFormModalVisible(true);
+  };
+
+  const handleSubmitReport = async (values: any) => {
+    if (!selectedTaskForReport) return;
+    setSubmitting(true);
+    const formData = new FormData();
+    formData.append("content", values.content);
+    if (fileList.length > 0) {
+      formData.append("file", fileList[0].originFileObj);
+    }
+    
+    try {
+      if (editingReport) {
+        await freelancerTaskService.updateReport(editingReport.id, formData);
+        message.success("Sửa báo cáo thành công!");
+      } else {
+        await freelancerTaskService.submitReport(selectedTaskForReport.taskId, formData);
+        message.success("Nộp báo cáo thành công!");
+      }
+      setReportFormModalVisible(false);
+      // reload danh sách báo cáo
+      const data = await freelancerTaskService.getReportsByTask(selectedTaskForReport.taskId);
+      setReportsList(data);
+    } catch (error: any) {
+      message.error(error.response?.data?.message || "Lỗi khi nộp/sửa báo cáo!");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleOpenFeedbacks = async (report: WorkReportItem) => {
+    setSelectedReportForFeedback(report);
+    setFeedbackModalVisible(true);
+    try {
+      const data = await freelancerTaskService.getReportFeedbacks(report.id);
+      setFeedbacksList(data);
+    } catch (error) {
+      message.error("Lỗi khi tải danh sách feedback!");
+    }
+  };
+
+  const handleSubmitLeaderFeedback = async (values: any) => {
+    if (!selectedReportForFeedback) return;
+    setSubmitting(true);
+    const formData = new FormData();
+    formData.append("feedback", values.feedback);
+    if (fileList.length > 0) {
+      formData.append("file", fileList[0].originFileObj);
+    }
+    
+    try {
+      await freelancerTaskService.submitLeaderFeedback(selectedReportForFeedback.id, formData);
+      message.success("Gửi feedback thành công!");
+      feedbackForm.resetFields();
+      setFileList([]);
+      // Reload feedbacks
+      const data = await freelancerTaskService.getReportFeedbacks(selectedReportForFeedback.id);
+      setFeedbacksList(data);
+    } catch (error: any) {
+      message.error(error.response?.data?.message || "Lỗi khi gửi feedback!");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -403,9 +507,9 @@ export const FreelancerTasksPage: React.FC = () => {
                               </div>
                             )}
 
-                            <Space style={{ width: "100%", justifyContent: "space-between", marginTop: "12px" }}>
+                            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "8px", marginTop: "12px" }}>
                               {task.fileUrl ? (
-                                <Button type="link" size="small" icon={<DownloadOutlined />} href={task.fileUrl} target="_blank">
+                                <Button type="link" size="small" icon={<DownloadOutlined />} href={task.fileUrl} target="_blank" style={{ padding: 0 }}>
                                   Tài liệu
                                 </Button>
                               ) : <span />}
@@ -419,7 +523,7 @@ export const FreelancerTasksPage: React.FC = () => {
                               >
                                 Bắt đầu làm
                               </Button>
-                            </Space>
+                            </div>
                           </Card>
                         ))}
                       </Space>
@@ -461,23 +565,32 @@ export const FreelancerTasksPage: React.FC = () => {
                               </div>
                             )}
 
-                            <Space style={{ width: "100%", justifyContent: "space-between", marginTop: "12px" }}>
+                            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "8px", marginTop: "12px" }}>
                               {task.fileUrl ? (
-                                <Button type="link" size="small" icon={<DownloadOutlined />} href={task.fileUrl} target="_blank">
+                                <Button type="link" size="small" icon={<DownloadOutlined />} href={task.fileUrl} target="_blank" style={{ padding: 0 }}>
                                   Tài liệu
                                 </Button>
                               ) : <span />}
                               
-                              <Button
-                                type="primary"
-                                size="small"
-                                icon={<CheckCircleOutlined />}
-                                style={{ background: "#52c41a", border: "none", borderRadius: "6px", fontSize: "12px" }}
-                                onClick={() => handleUpdateStatus(task.taskId, "DONE")}
-                              >
-                                Hoàn thành
-                              </Button>
-                            </Space>
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                                <Button 
+                                  size="small" 
+                                  icon={<FileTextOutlined />} 
+                                  onClick={() => handleOpenReports(task)}
+                                >
+                                  Báo cáo & Feedback
+                                </Button>
+                                <Button
+                                  type="primary"
+                                  size="small"
+                                  icon={<CheckCircleOutlined />}
+                                  style={{ background: "#52c41a", border: "none", borderRadius: "6px", fontSize: "12px" }}
+                                  onClick={() => handleUpdateStatus(task.taskId, "DONE")}
+                                >
+                                  Hoàn thành
+                                </Button>
+                              </div>
+                            </div>
                           </Card>
                         ))}
                       </Space>
@@ -514,15 +627,15 @@ export const FreelancerTasksPage: React.FC = () => {
                               {task.description}
                             </Paragraph>
 
-                            <Space style={{ width: "100%", justifyContent: "space-between", marginTop: "12px" }}>
+                            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "8px", marginTop: "12px" }}>
                               {task.fileUrl ? (
-                                <Button type="link" size="small" icon={<DownloadOutlined />} href={task.fileUrl} target="_blank">
+                                <Button type="link" size="small" icon={<DownloadOutlined />} href={task.fileUrl} target="_blank" style={{ padding: 0 }}>
                                   Tài liệu
                                 </Button>
                               ) : <span />}
                               
                               <Tag color="success" style={{ border: "none", borderRadius: "4px" }}>✓ Đã xong</Tag>
-                            </Space>
+                            </div>
                           </Card>
                         ))}
                       </Space>
@@ -687,6 +800,14 @@ export const FreelancerTasksPage: React.FC = () => {
                             ✓ Bạn đã nhận task này
                           </Tag>
                         )}
+                        <Button 
+                          size="small" 
+                          icon={<FileTextOutlined />} 
+                          onClick={() => handleOpenReports(task)}
+                          disabled={task.status === "TODO"}
+                        >
+                          Báo cáo & Feedback
+                        </Button>
                       </div>
                     </Card>
                   );
@@ -824,6 +945,136 @@ export const FreelancerTasksPage: React.FC = () => {
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* MODAL QUẢN LÝ BÁO CÁO */}
+      <Modal
+        title={
+          <Space>
+            <FileDoneOutlined style={{ color: "#11998e" }} />
+            <span style={{ fontWeight: 700 }}>Báo cáo công việc: {selectedTaskForReport?.title}</span>
+          </Space>
+        }
+        open={reportsModalVisible}
+        onCancel={() => setReportsModalVisible(false)}
+        footer={null}
+        width={700}
+      >
+        <div style={{ marginBottom: "16px", display: "flex", justifyContent: "flex-end" }}>
+           {/* Chỉ người được giao task mới được quyền viết báo cáo */}
+           {(selectedTaskForReport?.assignedTo === user?.id || myTasks.some(t => t.taskId === selectedTaskForReport?.taskId)) && selectedTaskForReport?.status === "IN_PROGRESS" && (
+             <Button type="primary" icon={<PlusOutlined />} onClick={() => handleOpenSubmitReport()}>
+               Viết báo cáo mới
+             </Button>
+           )}
+        </div>
+        
+        {reportsList.length === 0 ? (
+          <Empty description="Chưa có báo cáo nào cho task này" />
+        ) : (
+          <Space direction="vertical" style={{ width: "100%" }}>
+            {reportsList.map(report => (
+              <Card key={report.id} size="small" style={{ border: "1px solid #e8e8e8", borderRadius: "8px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                  <Text strong>{report.reporterName}</Text>
+                  <Text type="secondary" style={{ fontSize: "12px" }}>
+                    {dayjs(report.reportedAt).format("DD/MM/YYYY HH:mm")}
+                  </Text>
+                </div>
+                <Paragraph>{report.content}</Paragraph>
+                
+                <Space style={{ width: "100%", justifyContent: "space-between", marginTop: "12px" }}>
+                  {report.fileUrl ? (
+                    <Button type="link" size="small" icon={<DownloadOutlined />} href={report.fileUrl} target="_blank">
+                      File đính kèm
+                    </Button>
+                  ) : <span />}
+                  
+                  <Space>
+                    {/* Chỉ người tạo báo cáo và task IN_PROGRESS mới được sửa */}
+                    {(selectedTaskForReport?.assignedTo === user?.id || myTasks.some(t => t.taskId === selectedTaskForReport?.taskId)) && selectedTaskForReport?.status === "IN_PROGRESS" && (
+                      <Button size="small" icon={<EditOutlined />} onClick={() => handleOpenSubmitReport(report)}>
+                        Sửa
+                      </Button>
+                    )}
+                    <Button size="small" type="primary" ghost icon={<MessageOutlined />} onClick={() => handleOpenFeedbacks(report)}>
+                      Xem Feedback
+                    </Button>
+                  </Space>
+                </Space>
+              </Card>
+            ))}
+          </Space>
+        )}
+      </Modal>
+
+      {/* MODAL VIẾT/SỬA BÁO CÁO */}
+      <Modal
+        title={<span style={{ fontWeight: 700 }}>{editingReport ? "Sửa báo cáo" : "Viết báo cáo mới"}</span>}
+        open={reportFormModalVisible}
+        onCancel={() => setReportFormModalVisible(false)}
+        footer={null}
+        destroyOnClose
+      >
+        <Form form={reportForm} layout="vertical" onFinish={handleSubmitReport}>
+          <Form.Item name="content" label="Nội dung báo cáo" rules={[{ required: true, message: "Vui lòng nhập nội dung!" }]}>
+            <Input.TextArea rows={4} />
+          </Form.Item>
+          <Form.Item label="File đính kèm (không bắt buộc)">
+            <Upload.Dragger beforeUpload={() => false} fileList={fileList} onChange={({ fileList }) => setFileList(fileList.slice(-1))}>
+              <p className="ant-upload-drag-icon"><InboxOutlined /></p>
+              <p className="ant-upload-text">Nhấp hoặc kéo thả file</p>
+            </Upload.Dragger>
+          </Form.Item>
+          <Form.Item style={{ textAlign: "right", margin: 0 }}>
+            <Button type="primary" htmlType="submit" loading={submitting}>Lưu báo cáo</Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* MODAL XEM & VIẾT FEEDBACK */}
+      <Modal
+        title={<span style={{ fontWeight: 700 }}>Feedback Báo Cáo</span>}
+        open={feedbackModalVisible}
+        onCancel={() => setFeedbackModalVisible(false)}
+        footer={null}
+        width={600}
+      >
+        {feedbacksList.length === 0 ? (
+          <Empty description="Chưa có feedback nào cho báo cáo này" />
+        ) : (
+          <Space direction="vertical" style={{ width: "100%", maxHeight: "400px", overflowY: "auto", marginBottom: "16px" }}>
+            {feedbacksList.map(fb => (
+              <Card key={fb.id} size="small" style={{ background: fb.type === "COMPANY_TO_LEADER" ? "#fff1f0" : "#f0f5ff", border: "none" }}>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <Text strong>{fb.authorName} <Tag color={fb.type === "COMPANY_TO_LEADER" ? "red" : "blue"} style={{ marginLeft: "8px"}}>{fb.type === "COMPANY_TO_LEADER" ? "Công ty" : "Leader"}</Tag></Text>
+                  <Text type="secondary" style={{ fontSize: "12px" }}>{dayjs(fb.createdAt).format("DD/MM/YYYY HH:mm")}</Text>
+                </div>
+                <Paragraph style={{ marginTop: "8px", marginBottom: "8px" }}>{fb.content}</Paragraph>
+                {fb.fileUrl && <a href={fb.fileUrl} target="_blank" rel="noreferrer">📎 File đính kèm</a>}
+              </Card>
+            ))}
+          </Space>
+        )}
+        
+        {/* Form viết feedback chỉ hiện cho Leader */}
+        {selectedProject?.isLeader && (
+          <Form form={feedbackForm} layout="vertical" onFinish={handleSubmitLeaderFeedback}>
+            <Divider>Viết Feedback cho Freelancer</Divider>
+            <Form.Item name="feedback" rules={[{ required: true, message: "Vui lòng nhập feedback!" }]}>
+              <Input.TextArea rows={3} placeholder="Nhập feedback của Leader..." />
+            </Form.Item>
+            <Form.Item>
+              <Upload beforeUpload={() => false} fileList={fileList} onChange={({ fileList }) => setFileList(fileList.slice(-1))}>
+                <Button icon={<PlusOutlined />}>Đính kèm File</Button>
+              </Upload>
+            </Form.Item>
+            <Form.Item style={{ textAlign: "right", margin: 0 }}>
+              <Button type="primary" htmlType="submit" loading={submitting}>Gửi Feedback</Button>
+            </Form.Item>
+          </Form>
+        )}
+      </Modal>
+
     </div>
   );
 };

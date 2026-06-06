@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.freelancer.User.User;
 import com.example.freelancer.User.repository.UserRepository;
@@ -37,6 +38,7 @@ import com.example.freelancer.module.company.dto.CompanyDetailResponse;
 import com.example.freelancer.module.company.dto.CompanyMapper;
 import com.example.freelancer.module.company.dto.CompanyPaymentResponse;
 import com.example.freelancer.module.company.dto.CompanyProjectResponse;
+import com.example.freelancer.module.company.dto.CompanyProjectTaskResponse;
 import com.example.freelancer.module.company.dto.CompanyResponse;
 import com.example.freelancer.module.company.dto.CreateCompanyRequest;
 import com.example.freelancer.module.company.dto.UpdateCompanyRequest;
@@ -49,11 +51,15 @@ import com.example.freelancer.module.freelancer.entity.TeamMember;
 import com.example.freelancer.module.freelancer.repository.TeamMemberRepository;
 import com.example.freelancer.module.freelancer.repository.TeamRepository;
 import com.example.freelancer.module.notification.service.NotificationService;
+import com.example.freelancer.module.report.dto.FeedbackItem;
+import com.example.freelancer.module.report.dto.ReportItem;
+import com.example.freelancer.module.report.repository.ReportFeedbackRepository;
+import com.example.freelancer.module.report.repository.WorkReportRepository;
+import com.example.freelancer.module.task.entity.Task;
 import com.example.freelancer.module.task.repository.TaskRepository;
 import com.example.freelancer.module.transaction.dto.PaymentTransactionResponse;
 import com.example.freelancer.module.transaction.repository.PaymentDistributionRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -73,6 +79,8 @@ public class CompanyService implements ICompanyService {
         private final PaymentLogRepository paymentLogRepository;
         private final NotificationService notificationService;
         private final ProjectApplicationRepository projectApplicationRepository;
+        private final WorkReportRepository workReportRepository;
+        private final ReportFeedbackRepository reportFeedbackRepository;
 
         @Override
         @Transactional
@@ -320,6 +328,7 @@ public class CompanyService implements ICompanyService {
         }
 
         @Override
+        @Transactional(readOnly = true)
         public List<CompanyProjectResponse> getCompanyProjects() {
 
                 UserDetailsImpl currentUser = SecurityUtils.getCurrentUser();
@@ -385,6 +394,14 @@ public class CompanyService implements ICompanyService {
                                                         .inProgressTasks(inProgress)
                                                         .todoTasks(todo)
                                                         .createdAt(project.getCreatedAt())
+                                                        .attachmentUrls(
+                                                                        project.getAttachments() != null
+                                                                                        ? project.getAttachments()
+                                                                                                        .stream()
+                                                                                                        .map(attachment -> attachment
+                                                                                                                        .getFileUrl())
+                                                                                                        .toList()
+                                                                                        : List.of())
                                                         .paymentStatus(paymentStatus)
                                                         .build();
                                 })
@@ -483,5 +500,72 @@ public class CompanyService implements ICompanyService {
                                                         .build();
                                 })
                                 .toList();
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public List<CompanyProjectTaskResponse> getProjectTasks(UUID projectId) {
+
+                UserDetailsImpl currentUser = SecurityUtils.getCurrentUser();
+
+                // Kiểm tra project thuộc công ty này
+                Project project = projectRepository.findById(projectId)
+                                .orElseThrow(() -> new ResourceNotFoundException("404", "Dự án không tồn tại"));
+
+                Company company = companyRepository.findByUserId(currentUser.getId())
+                                .orElseThrow(() -> new ResourceNotFoundException("404", "Không tìm thấy thông tin công ty"));
+
+                if (!project.getCompany().getId().equals(company.getId())) {
+                        throw new BadRequestException("403", "Bạn không có quyền xem dự án này");
+                }
+
+                // Lấy tất cả task của project
+                List<Task> tasks = taskRepository.findByProjectIdOrderByCreatedAtDesc(projectId);
+
+                return tasks.stream().map(task -> {
+
+                        // Lấy tất cả báo cáo của task này
+                        List<ReportItem> reportItems =
+                                workReportRepository.findByTaskIdOrderByReportedAtDesc(task.getId())
+                                        .stream().map(report -> {
+
+                                                // Lấy tất cả feedback của báo cáo này
+                                                List<FeedbackItem> feedbackItems =
+                                                        reportFeedbackRepository.findByReportIdOrderByCreatedAtAsc(report.getId())
+                                                                .stream().map(fb -> FeedbackItem.builder()
+                                                                        .id(fb.getId())
+                                                                        .authorName(fb.getAuthor().getFullName())
+                                                                        .type(fb.getType())
+                                                                        .content(fb.getContent())
+                                                                        .fileUrl(fb.getFileUrl())
+                                                                        .createdAt(fb.getCreatedAt())
+                                                                        .build())
+                                                                .toList();
+
+                                                return ReportItem.builder()
+                                                        .id(report.getId())
+                                                        .reporterName(report.getReporter().getUser().getFullName())
+                                                        .content(report.getContent())
+                                                        .fileUrl(report.getFileUrl())
+                                                        .reportedAt(report.getReportedAt())
+                                                        .feedbacks(feedbackItems)
+                                                        .build();
+                                        }).toList();
+
+                        return CompanyProjectTaskResponse.builder()
+                                .taskId(task.getId())
+                                .title(task.getTitle())
+                                .description(task.getDescription())
+                                .status(task.getStatus())
+                                .taskType(task.getTaskType())
+                                .fileUrl(task.getFileUrl())
+                                .assignedTo(task.getAssignedTo() != null ? task.getAssignedTo().getId() : null)
+                                .assignedToName(task.getAssignedTo() != null ? task.getAssignedTo().getUser().getFullName() : "Chưa có người nhận")
+                                .deadline(task.getDeadline())
+                                .createdAt(task.getCreatedAt())
+                                .reports(reportItems)
+                                .build();
+
+                }).toList();
         }
 }

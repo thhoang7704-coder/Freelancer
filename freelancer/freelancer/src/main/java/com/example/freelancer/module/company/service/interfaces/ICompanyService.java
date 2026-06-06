@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.example.freelancer.module.company.dto.CompanyDetailResponse;
 import com.example.freelancer.module.company.dto.CompanyPaymentResponse;
 import com.example.freelancer.module.company.dto.CompanyProjectResponse;
+import com.example.freelancer.module.company.dto.CompanyProjectTaskResponse;
 import com.example.freelancer.module.company.dto.CompanyResponse;
 import com.example.freelancer.module.company.dto.CreateCompanyRequest;
 import com.example.freelancer.module.company.dto.UpdateCompanyRequest;
@@ -37,5 +38,8 @@ public interface ICompanyService {
 
         // xem payment của công ty
         List<CompanyPaymentResponse> getMyPayments();
+
+        // công ty xem tất cả task của một project, bao gồm báo cáo và feedback
+        List<CompanyProjectTaskResponse> getProjectTasks(UUID projectId);
 
 }

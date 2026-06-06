@@ -900,6 +900,24 @@ const handleToggleLock = async (
     ))}
   </Space>
 </div>
+
+            {selectedProject.attachmentUrls && selectedProject.attachmentUrls.length > 0 && (
+              <div>
+                <Text type="secondary">
+                  File đính kèm
+                </Text>
+                <br />
+                <Space direction="vertical" size={8} style={{ marginTop: 8 }}>
+                  {selectedProject.attachmentUrls.map((url, index) => (
+                    <a key={index} href={url} target="_blank" rel="noreferrer">
+                      <Tag color="cyan" style={{ cursor: "pointer" }}>
+                        Tệp đính kèm {index + 1}
+                      </Tag>
+                    </a>
+                  ))}
+                </Space>
+              </div>
+            )}
           </div>
         )}
       </Modal>

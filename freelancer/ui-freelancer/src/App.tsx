@@ -34,7 +34,8 @@ import {
   CompanyFreelancersPage,
   CompanyContractsPage,
   CompanyPaymentsPage,
-  CompanyProfilePage
+  CompanyProfilePage,
+  CompanyProjectTasksPage
 } from "./features/COMPANY";
 
 // New FREELANCER views
@@ -179,6 +180,7 @@ export const App: React.FC = () => {
         <Route path="dashboard" element={<CompanyDashboardPage />} />
         <Route path="projects" element={<CompanyProjectsPage />} />
         <Route path="project-members" element={<CompanyProjectMembersPage />} />
+        <Route path="tasks" element={<CompanyProjectTasksPage />} />
         <Route path="freelancer-approvals" element={<CompanyApprovedFreelancersPage />} />
         <Route path="freelancers" element={<CompanyFreelancersPage />} />
         <Route path="contracts" element={<CompanyContractsPage />} />

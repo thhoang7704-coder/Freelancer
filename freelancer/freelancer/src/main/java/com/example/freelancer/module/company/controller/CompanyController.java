@@ -3,9 +3,11 @@ package com.example.freelancer.module.company.controller;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.freelancer.common.response.ApiResponse;
 import com.example.freelancer.common.response.PageResponse;
@@ -15,6 +17,7 @@ import com.example.freelancer.module.Project.dto.ProjectMemberResponse;
 import com.example.freelancer.module.Project.service.interfaces.IProjectApplicationService;
 import com.example.freelancer.module.company.dto.CompanyDetailResponse;
 import com.example.freelancer.module.company.dto.CompanyPaymentResponse;
+import com.example.freelancer.module.company.dto.CompanyProjectTaskResponse;
 import com.example.freelancer.module.company.dto.CompanyResponse;
 import com.example.freelancer.module.company.dto.CreateCompanyRequest;
 import com.example.freelancer.module.company.dto.UpdateCompanyRequest;
@@ -26,6 +29,8 @@ import com.example.freelancer.module.freelancer.dto.TeamListResponse;
 import com.example.freelancer.module.freelancer.dto.TeamMemberResponse;
 import com.example.freelancer.module.freelancer.dto.TeamResponse;
 import com.example.freelancer.module.freelancer.service.interfaces.ITeamService;
+import com.example.freelancer.module.report.dto.ReportFeedbackResponse;
+import com.example.freelancer.module.report.service.interfaces.IReportFeedbackService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +43,7 @@ public class CompanyController {
         private final ICompanyService companyService;
         private final IProjectApplicationService projectApplicationService;
         private final ITeamService teamService;
+        private final IReportFeedbackService reportFeedbackService;
 
         @PostMapping
         public ApiResponse<CompanyResponse> createCompany(
@@ -231,5 +237,27 @@ public class CompanyController {
                 return ApiResponse.ok(
                                 teamService.getAllTeams(),
                                 "Lấy danh sách team thành công");
+        }
+
+        // công ty viết feedback cho báo cáo của freelancer và leader sẽ nhận được
+        @PostMapping(value = "/reports/{reportId}/company-feedbacks", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        public ResponseEntity<ReportFeedbackResponse> provideCompanyFeedback(
+                        @PathVariable UUID reportId,
+                        @RequestParam("feedback") String feedback,
+                        @RequestParam(value = "file", required = false) MultipartFile file) {
+
+                ReportFeedbackResponse response = reportFeedbackService.addCompanyFeedback(reportId, feedback, file);
+                return ResponseEntity.ok(response);
+        }
+
+        // công ty xem tất cả task + báo cáo + feedback của một project
+        @GetMapping("/projects/{projectId}/tasks")
+        @PreAuthorize("hasRole('COMPANY')")
+        public ApiResponse<List<CompanyProjectTaskResponse>> getProjectTasks(
+                        @PathVariable UUID projectId) {
+
+                return ApiResponse.ok(
+                                companyService.getProjectTasks(projectId),
+                                "Lấy danh sách task thành công");
         }
 }
