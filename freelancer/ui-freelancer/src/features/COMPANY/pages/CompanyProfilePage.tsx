@@ -102,6 +102,8 @@ export const CompanyProfilePage: React.FC = () => {
         </div>
       </Card>
 
+      {/* removed inline policy button (now in layout menu) */}
+
       <Row gutter={20}>
         {/* Left - Main Info */}
         <Col span={16}>

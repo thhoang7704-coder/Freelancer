@@ -22,7 +22,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -43,11 +43,10 @@ public class UserController {
         return ApiResponse.ok(response, "Cập nhật thành công");
     }
 
-    @GetMapping
+    @GetMapping("/notifications")
     public ResponseEntity<List<NotificationResponse>> getMyNotifications() {
 
-        return ResponseEntity.ok(
-                userService.getMyNotifications());
+        return ResponseEntity.ok(userService.getMyNotifications());
     }
 
     @PutMapping("/notifications/{notificationId}/read")

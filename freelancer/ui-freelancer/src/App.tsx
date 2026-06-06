@@ -22,6 +22,7 @@ import {
   AdminPaymentsPage,
   AdminPaymentRulesPage,
   AdminWalletPage,
+  AdminNotificationPage,
 } from "./features/ADMIN";
 
 // New COMPANY views
@@ -52,6 +53,8 @@ import {
   FreelancerTeamsPage
 } from "./features/FREELANCER";
 
+// Policy page
+import { PolicyPage } from "./features/policy";
 // New USER views
 import {
   UserLayout,
@@ -164,6 +167,7 @@ export const App: React.FC = () => {
         <Route path="payments" element={<AdminPaymentsPage />} />
         <Route path="payment-rules" element={<AdminPaymentRulesPage />} />
         <Route path="wallet" element={<AdminWalletPage />} />
+        <Route path="notifications/new" element={<AdminNotificationPage />} />
         <Route path="statistics" element={<AdminStatisticsPage />} />
       </Route>
 
@@ -186,6 +190,7 @@ export const App: React.FC = () => {
         <Route path="contracts" element={<CompanyContractsPage />} />
         <Route path="payments" element={<CompanyPaymentsPage />} />
         <Route path="profile" element={<CompanyProfilePage />} />
+        <Route path="policy" element={<PolicyPage />} />
       </Route>
 
       {/* Hệ thống Route mới cho Chuyên gia tự do (Freelancer) sử dụng Layout và nested routes */}
@@ -207,6 +212,7 @@ export const App: React.FC = () => {
         <Route path="contracts" element={<FreelancerContractsPage />} />
         <Route path="earnings" element={<FreelancerEarningsPage />} />
         <Route path="profile" element={<FreelancerProfilePage />} />
+        <Route path="policy" element={<PolicyPage />} />
       </Route>
 
       {/* Hệ thống Route mới cho Thành viên thường (User) sử dụng Layout và nested routes */}

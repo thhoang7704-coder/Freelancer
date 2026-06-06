@@ -25,6 +25,7 @@ const allMenuItems = [
   { key: "/company/contracts",    icon: <FileTextOutlined />,  label: "Hợp đồng"          },
   { key: "/company/payments",     icon: <CreditCardOutlined />,label: "Thanh toán"        },
   { key: "/company/profile",      icon: <UserOutlined />,      label: "Hồ sơ doanh nghiệp" },
+  { key: "/company/policy",       icon: <FileTextOutlined />,  label: "Chính sách" },
 ];
 
 export const CompanyLayout: React.FC = () => {

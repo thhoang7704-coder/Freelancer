@@ -9,3 +9,4 @@ export { AdminPendingProjectsPage } from "./pages/AdminPendingProjectsPage";
 export { AdminPaymentsPage } from "./pages/AdminPaymentsPage";
 export { AdminPaymentRulesPage } from "./pages/AdminPaymentRulesPage";
 export { AdminWalletPage } from "./pages/AdminWalletPage";
+export { AdminNotificationPage } from "./pages/AdminNotificationPage";

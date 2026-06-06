@@ -25,6 +25,7 @@ const menuItems = [
   { key: "/freelancer/contracts",  icon: <FileTextOutlined />,  label: "Hợp đồng của tôi" },
   { key: "/freelancer/earnings",   icon: <WalletOutlined />,    label: "Thu nhập"          },
   { key: "/freelancer/profile",    icon: <UserOutlined />,      label: "Hồ sơ cá nhân"    },
+  { key: "/freelancer/policy",     icon: <FileTextOutlined />,  label: "Chính sách" },
 ];
 
 export const FreelancerLayout: React.FC = () => {

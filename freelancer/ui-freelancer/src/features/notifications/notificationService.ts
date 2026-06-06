@@ -18,7 +18,7 @@ interface RawNotification extends Omit<AppNotification, "isRead"> {
 
 export const notificationService = {
   async getMyNotifications(): Promise<AppNotification[]> {
-    const response = await api.get<RawNotification[]>("/api/v1/users");
+    const response = await api.get<RawNotification[]>("/users/notifications");
 
     return (response.data || []).map((notification) => ({
       ...notification,
@@ -27,9 +27,7 @@ export const notificationService = {
   },
 
   async markAsRead(notificationId: string) {
-    const response = await api.put(
-      `/api/v1/users/notifications/${notificationId}/read`
-    );
+    const response = await api.put(`/users/notifications/${notificationId}/read`);
 
     return response.data;
   },

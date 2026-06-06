@@ -276,6 +276,8 @@ export const FreelancerProfilePage: React.FC = () => {
         </div>
       </Card>
 
+      {/* removed inline policy button (now in layout menu) */}
+
       <Row gutter={[20, 20]}>
         {/* Main Content Areas */}
         <Col xs={24} md={16}>

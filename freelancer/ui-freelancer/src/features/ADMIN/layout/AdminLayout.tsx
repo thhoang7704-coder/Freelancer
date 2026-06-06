@@ -3,7 +3,7 @@ import { Layout, Menu, Button, Typography, Space, Avatar, Dropdown } from "antd"
 import {
   DashboardOutlined, TeamOutlined, BankOutlined, ProjectOutlined,
   BarChartOutlined, LogoutOutlined, UserOutlined,
-  SettingOutlined, MenuFoldOutlined, MenuUnfoldOutlined, CreditCardOutlined, PercentageOutlined
+  SettingOutlined, MenuFoldOutlined, MenuUnfoldOutlined, CreditCardOutlined, PercentageOutlined, NotificationOutlined
 } from "@ant-design/icons";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { useAuthStore } from "../../../stores/authStore";
@@ -38,6 +38,7 @@ const menuItems = [
   { key: "/admin/statistics",   icon: <BarChartOutlined />,  label: "Thống kê"           },
   { key: "/admin/payment-rules", icon: <PercentageOutlined />, label: "Quy tắc thanh toán" },
   { key: "/admin/payments", icon: <CreditCardOutlined />, label: "Thanh toán" },
+  { key: "/admin/notifications/new", icon: <NotificationOutlined />, label: "Gửi thông báo" },
 ];
 
 export const AdminLayout: React.FC = () => {

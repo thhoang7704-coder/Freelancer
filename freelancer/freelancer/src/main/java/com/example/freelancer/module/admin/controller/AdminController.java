@@ -1,6 +1,7 @@
 package com.example.freelancer.module.admin.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ import com.example.freelancer.module.admin.dto.UpdateCompanyStatusRequest;
 import com.example.freelancer.module.admin.dto.UpdateProjectStatusRequest;
 import com.example.freelancer.module.admin.dto.UpdateProjectStatusResponse;
 import com.example.freelancer.module.admin.service.AdminService;
+import com.example.freelancer.module.notification.dto.AdminBroadcastRequest;
 import com.example.freelancer.module.notification.dto.AdminSendCompanyNotificationRequest;
 import com.example.freelancer.module.notification.dto.NotificationResponse;
 import com.example.freelancer.module.notification.service.NotificationService;
@@ -98,7 +100,7 @@ public class AdminController {
     }
 
     // gửi thông báo cho công ty từ admin
-    @PostMapping("/admin/company")
+    @PostMapping("/notification/company")
     public ResponseEntity<NotificationResponse> sendNotificationToCompany(
             @RequestBody AdminSendCompanyNotificationRequest request) {
 
@@ -143,4 +145,10 @@ public class AdminController {
         return ApiResponse.ok(adminService.getAllPayments());
     }
 
+    @PostMapping("/admin/notifications/broadcast")
+    public ResponseEntity<?> broadcastToAdmins(@RequestBody AdminBroadcastRequest req) {
+        // kiểm tra quyền có thể đã có sẵn trong controller
+        notificationService.sendToAllAdminsAsync(req.getTitle(), req.getContent());
+        return ResponseEntity.accepted().body(Map.of("message", "Broadcast queued"));
+    }
 }
