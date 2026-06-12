@@ -121,17 +121,17 @@ export const AdminCompaniesPage: React.FC = () => {
         </Space>
       ),
     },
-{
-  title: "Mã số thuế",
-  dataIndex: "taxCode",
-  key: "taxCode",
+    {
+      title: "Mã số thuế",
+      dataIndex: "taxCode",
+      key: "taxCode",
 
-  render: (v?: string) => (
-    <Tag color="geekblue">
-      {v || "Chưa cập nhật"}
-    </Tag>
-  ),
-},
+      render: (v?: string) => (
+        <Tag color="geekblue">
+          {v || "Chưa cập nhật"}
+        </Tag>
+      ),
+    },
     {
       title: "Ngành nghề",
       dataIndex: "expertise",
@@ -379,10 +379,7 @@ export const AdminCompaniesPage: React.FC = () => {
                   "Tên doanh nghiệp",
                   detailModal.companyName,
                 ],
-[
-  "Mã số thuế",
-  detailModal.taxCode || "Chưa cập nhật",
-],
+
                 [
                   "Ngành nghề",
                   detailModal.expertise ||
