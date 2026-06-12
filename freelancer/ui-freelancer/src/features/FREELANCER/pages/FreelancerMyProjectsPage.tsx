@@ -37,7 +37,7 @@ export const FreelancerMyProjectsPage: React.FC = () => {
     try {
       setLoading(true);
       const joinedProjects = await freelancerTaskService.getJoinedProjects();
-      
+
       // Kiểm tra leader cho từng project
       const projectsWithLeaderStatus = await Promise.all(
         joinedProjects.map(async (p) => {
@@ -45,7 +45,7 @@ export const FreelancerMyProjectsPage: React.FC = () => {
           return { ...p, isLeader };
         })
       );
-      
+
       setProjects(projectsWithLeaderStatus);
     } catch (error) {
       console.error("Lỗi khi tải danh sách dự án:", error);
@@ -210,9 +210,9 @@ export const FreelancerMyProjectsPage: React.FC = () => {
                           { value: "DONE", label: "Hoàn thành" },
                         ]}
                       />
-                      <Button 
-                        type="primary" 
-                        icon={<SaveOutlined />} 
+                      <Button
+                        type="primary"
+                        icon={<SaveOutlined />}
                         onClick={() => handleSaveProgress(project)}
                         loading={savingProgress === project.projectId}
                         style={{ background: "#11998e", borderColor: "#11998e" }}

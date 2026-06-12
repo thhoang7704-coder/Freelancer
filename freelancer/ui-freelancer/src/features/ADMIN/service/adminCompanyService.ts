@@ -19,8 +19,8 @@ export interface PendingCompany {
     foundedDate: string;
     companyField: string;
     description: string;
-    taxCode?: string;
     status: "PENDING" | "APPROVED" | "REJECTED";
+    taxCode?: string;
     createdAt: string;
 }
 
